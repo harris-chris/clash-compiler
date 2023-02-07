@@ -10,26 +10,31 @@
   }:
   let
     thisPackageName = "clash-compiler";
-    thisCompiler = "ghc924";
+    thisCompiler = "ghc925";
 
     clashDependenciesOverlay = final: prev:
       let
         gitIgnoreLines = final.lib.strings.splitString
           "\n" (builtins.readFile ./.gitignore);
         sourceIgnoreFunc = final.nix-gitignore.gitignoreSourcePure gitIgnoreLines;
+        # tasty-hedgehog = builtins.fetchGit {
+        #   url = "https://github.com/qfpl/tasty-hedgehog";
+        #   ref = "master";
+        #   rev = "1ade0d8e78c32a724f80d4bc39bdb2a55c5de1c6";
+        # };
         hsPkgsOverlay = self: super: {
           tasty-hedgehog = final.haskell.lib.overrideCabal super.tasty-hedgehog (old: {
-            src = final.fetchgit {
-              url = "https://github.com/qfpl/tasty-hedgehog";
-              rev = "50959b2bf6fd8fdeea7d25121768058a00536484";
-              sha256 = "eJBRfw1xITs2Fehfwbo4/DcjTdVBudHdedCla7Udn7w=";
-            };
+            version = "1.3.0.0";
+            sha256 = "cgH47/aozdKlyB6GYF0qNyNk2PUJsdGKD3QjBSpbZLY=";
+            revision = "1";
+            editedCabalFile = "NEMwxJ1HoTbt0WW+fkzcRvxd96dEl0Yl6UUxYKxOjK0=";
           });
           type-errors = final.haskell.lib.overrideCabal super.type-errors (old: {
             doCheck = false;
           });
         };
-        haskellPackages = final.haskell.packages.${thisCompiler}.extend hsPkgsOverlay;
+        haskellPackages = final.haskell.packages.${thisCompiler}.extend
+          hsPkgsOverlay;
       in
       {
         inherit haskellPackages sourceIgnoreFunc;
@@ -65,9 +70,15 @@
     getPerSystem = system:
       let
         pkgsConfig = { allowBroken = true; };
-        systemPkgs = import nixpkgs { inherit system; config = pkgsConfig; };
+        systemPkgs = import nixpkgs {
+          inherit system;
+          config = pkgsConfig;
+          overlays = [ clashDependenciesOverlay ];
+        };
         devShell = getDevShellFromPkgs systemPkgs;
-        packages = getClashPackages systemPkgs;
+        clashPackages = getClashPackages systemPkgs;
+        testPackages = with systemPkgs.haskellPackages; { inherit tasty-hedgehog; };
+        packages = clashPackages // testPackages;
       in {
         inherit packages;
         inherit devShell;
