@@ -10,19 +10,15 @@
   }:
   let
     thisPackageName = "clash-compiler";
-    thisCompiler = "ghc925";
+    thisCompiler = "ghc884";
 
     clashDependenciesOverlay = self: super:
       let
         gitIgnoreLines = self.lib.strings.splitString
           "\n" (builtins.readFile ./.gitignore);
         sourceIgnoreFunc = self.nix-gitignore.gitignoreSourcePure gitIgnoreLines;
-        # tasty-hedgehog = builtins.fetchGit {
-        #   url = "https://github.com/qfpl/tasty-hedgehog";
-        #   ref = "master";
-        #   rev = "1ade0d8e78c32a724f80d4bc39bdb2a55c5de1c6";
-        # };
         hsPkgsOverlay = hself: hsuper: {
+          # hashable = self.haskell.lib.dontCheck (hself.callHackage "hashable" "1.3.0.0" {});
           tasty-hedgehog = self.haskell.lib.overrideCabal hsuper.tasty-hedgehog (old: {
             version = "1.3.0.0";
             sha256 = "cgH47/aozdKlyB6GYF0qNyNk2PUJsdGKD3QjBSpbZLY=";
@@ -45,7 +41,7 @@
         pkgs = packages.appendOverlays [ clashDependenciesOverlay ];
         clash-prelude = with pkgs.haskellPackages;
           callPackage ./clash-prelude/clash-prelude.nix {};
-        clash-lib = with pkgs.thisHaskellPackages;
+        clash-lib = with pkgs.haskellPackages;
           callPackage ./clash-lib/clash-lib.nix { inherit clash-prelude; };
       in {
         inherit clash-prelude clash-lib;
@@ -77,7 +73,10 @@
         };
         devShell = getDevShellFromPkgs systemPkgs;
         clashPackages = getClashPackages systemPkgs;
-        testPackages = with systemPkgs.haskellPackages; { inherit tasty-hedgehog; };
+        testPackages = with systemPkgs.haskellPackages; {
+          inherit tasty-hedgehog;
+          # base = systemPkgs.haskellPackages.base;
+        };
         packages = clashPackages // testPackages;
       in {
         inherit packages;
