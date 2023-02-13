@@ -18,7 +18,6 @@
           "\n" (builtins.readFile ./.gitignore);
         sourceIgnoreFunc = self.nix-gitignore.gitignoreSourcePure gitIgnoreLines;
         hsPkgsOverlay = hself: hsuper: {
-          # hashable = self.haskell.lib.dontCheck (hself.callHackage "hashable" "1.3.0.0" {});
           tasty-hedgehog = self.haskell.lib.overrideCabal hsuper.tasty-hedgehog (old: {
             version = "1.3.0.0";
             sha256 = "cgH47/aozdKlyB6GYF0qNyNk2PUJsdGKD3QjBSpbZLY=";
@@ -49,20 +48,19 @@
         inherit clash-prelude clash-lib clash-ghc;
       };
 
-    getDevShellFromPkgs = packages:
-      let
-        pkgs = packages.appendOverlays [ clashDependenciesOverlay ];
-        # clash-packages = getClashPackages packages;
-        # buildInputs = map
-        #   (key: packages.lib.attrsets.getAttr key clash-packages)
-        #   (packages.lib.attrsets.attrNames clash-packages);
-      in pkgs.haskellPackages.shellFor {
-        name = "${thisPackageName}-devshell";
-        packages = p: [ p.tasty-hedgehog p.type-errors ];
-        buildInputs = with pkgs; [];
+    getDevShell = pkgs: buildInputPackages:
+      pkgs.mkShell {
+        name = "clash-devshell";
+        buildInputs = builtins.attrValues buildInputPackages;
         shellHook = ''
           command -v fish &> /dev/null && fish
         '';
+      };
+
+    getHaskellDevShell = pkgs: clashPackages:
+      pkgs.haskellPackages.shellFor {
+        packages = p: [p.clash-lib p.clash-prelude p.clash-ghc];
+        buildInputs = builtins.attrValues clashPackages;
       };
 
     getPerSystem = system:
@@ -73,16 +71,10 @@
           config = pkgsConfig;
           overlays = [ clashDependenciesOverlay ];
         };
-        devShell = getDevShellFromPkgs systemPkgs;
         clashPackages = getClashPackages systemPkgs;
-        testPackages = with systemPkgs.haskellPackages; {
-          inherit tasty-hedgehog;
-          # base = systemPkgs.haskellPackages.base;
-        };
-        packages = clashPackages // testPackages;
       in {
-        inherit packages;
-        inherit devShell;
+        packages = clashPackages;
+        devShell = getHaskellDevShell systemPkgs clashPackages;
       };
     overlays = {};
   in
