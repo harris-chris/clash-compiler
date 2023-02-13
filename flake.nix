@@ -59,7 +59,7 @@
 
     getHaskellDevShell = pkgs: clashPackages:
       pkgs.haskellPackages.shellFor {
-        packages = p: [p.clash-lib p.clash-prelude p.clash-ghc];
+        packages = p: [p.clash-ghc];
         buildInputs = builtins.attrValues clashPackages;
       };
 
