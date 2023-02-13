@@ -3,4 +3,4 @@
 let
   sourceExclIgnored = sourceIgnoreFunc ./.;
 in
-  callCabal2nix "clash-lib" ./. { inherit clash-prelude; }
+  callCabal2nix "clash-lib" sourceExclIgnored { inherit clash-prelude; }

@@ -43,8 +43,10 @@
           callPackage ./clash-prelude/clash-prelude.nix {};
         clash-lib = with pkgs.haskellPackages;
           callPackage ./clash-lib/clash-lib.nix { inherit clash-prelude; };
+        clash-ghc = with pkgs.haskellPackages;
+          callPackage ./clash-ghc/clash-ghc.nix { inherit clash-prelude clash-lib; };
       in {
-        inherit clash-prelude clash-lib;
+        inherit clash-prelude clash-lib clash-ghc;
       };
 
     getDevShellFromPkgs = packages:
