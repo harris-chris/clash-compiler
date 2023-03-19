@@ -61,6 +61,9 @@
       pkgs.haskellPackages.shellFor {
         packages = p: [p.clash-ghc];
         buildInputs = builtins.attrValues clashPackages;
+        shellHook = ''
+          command -v fish &> /dev/null && fish
+        '';
       };
 
     getPerSystem = system:
