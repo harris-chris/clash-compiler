@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixos-22.11;
+    nixpkgs.url = github:NixOS/nixpkgs/nixos-23.11;
     flake-utils.url = "github:numtide/flake-utils";
   };
   outputs = {
@@ -62,8 +62,6 @@
         packages = p: [p.clash-ghc];
         buildInputs = [
           clashPackages.clash-lib
-          # clashPackages.clash-prelude
-          # clashPackages.clash-ghc
         ];
         shellHook = ''
           command -v fish &> /dev/null && fish
