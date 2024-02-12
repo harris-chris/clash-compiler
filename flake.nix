@@ -60,7 +60,11 @@
     getHaskellDevShell = pkgs: clashPackages:
       pkgs.haskellPackages.shellFor {
         packages = p: [p.clash-ghc];
-        buildInputs = builtins.attrValues clashPackages;
+        buildInputs = [
+          clashPackages.clash-lib
+          # clashPackages.clash-prelude
+          # clashPackages.clash-ghc
+        ];
         shellHook = ''
           command -v fish &> /dev/null && fish
         '';
