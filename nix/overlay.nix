@@ -48,6 +48,32 @@ let
           "ghc-typelits-natnormalise"
           "${ghc-typelits-natnormalise}"
           { };
+
+      circuit-notation = hprev.callHackageDirect {
+        pkg = "circuit-notation";
+        ver = "0.1.0.0";
+        sha256 = "sha256-D3A51HiTtWJTx2A8BgHpelBl9df62DA2QYYjFkSsGM8=";
+      } {};
+
+      clash-protocols-base = 
+        hprev.callCabal2nix
+          "clash-protocols-base"
+          ((builtins.fetchGit {
+            url = "https://github.com/harris-chris/clash-protocols.git";
+            ref = "main";
+            rev = "56a47e1d2ab30e4b38021f18937df83b0c4bc058";
+          }) + "/clash-protocols-base") {};
+
+      clash-protocols = 
+        prev.haskell.lib.dontCheck (
+          hprev.callCabal2nix
+            "clash-protocols"
+            ((builtins.fetchGit {
+              url = "https://github.com/harris-chris/clash-protocols.git";
+              ref = "main";
+              rev = "56a47e1d2ab30e4b38021f18937df83b0c4bc058";
+            }) + "/clash-protocols") { }
+          );
     };
 
   # An overlay with the packages in this repository.
@@ -105,7 +131,7 @@ let
               "clash-ghc"
               ../clash-ghc
               "--flag workaround-ghc-mmap-crash" {
-              inherit (hfinal) clash-lib clash-prelude;
+              inherit (hfinal) clash-lib clash-prelude clash-protocols;
             };
         in
         prev.haskell.lib.enableSharedExecutables
