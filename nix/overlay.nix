@@ -61,7 +61,7 @@ let
           ((builtins.fetchGit {
             url = "https://github.com/harris-chris/clash-protocols.git";
             ref = "main";
-            rev = "56a47e1d2ab30e4b38021f18937df83b0c4bc058";
+            rev = "128c36848b4c5c700eb53c686d66f8a3b80d5304";
           }) + "/clash-protocols-base") {};
 
       clash-protocols = 
@@ -71,7 +71,7 @@ let
             ((builtins.fetchGit {
               url = "https://github.com/harris-chris/clash-protocols.git";
               ref = "main";
-              rev = "56a47e1d2ab30e4b38021f18937df83b0c4bc058";
+              rev = "128c36848b4c5c700eb53c686d66f8a3b80d5304";
             }) + "/clash-protocols") { }
           );
     };
