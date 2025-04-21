@@ -55,6 +55,25 @@ let
         sha256 = "sha256-D3A51HiTtWJTx2A8BgHpelBl9df62DA2QYYjFkSsGM8=";
       } {};
 
+      clash-cores = 
+        let orig = 
+          hfinal.callCabal2nix
+            "clash-cores"
+            ((builtins.fetchGit {
+              url = "https://github.com/clash-lang/clash-cores.git";
+              ref = "ethernet";
+              rev = "a209a4b9e9178c29e2be90ede661ac8b26de129e";
+            })) { inherit (hfinal) ghc-typelits-knownnat ghc-typelits-extra; };
+        in prev.haskell.lib.overrideCabal orig (old: {
+          configureFlags = [
+            "-f-doctests"
+            "-fnix"
+            # "--ghc-option=-fplugin GHC.TypeLits.Extra.Solver"
+            # "--ghc-option=-fplugin GHC.TypeLits.Normalise"
+            # "--ghc-option=-fplugin GHC.TypeLits.KnownNat.Solver"
+          ];          
+        });
+
       clash-protocols-base = 
         hprev.callCabal2nix
           "clash-protocols-base"
@@ -101,10 +120,10 @@ let
           '';
         });
 
-      clash-cores =
-        hprev.callCabal2nixWithOptions "clash-cores" ../clash-cores "--flag nix" {
-          inherit (hfinal) clash-prelude;
-        };
+      # clash-cores =
+      #   hprev.callCabal2nixWithOptions "clash-cores" ../clash-cores "--flag nix" {
+      #     inherit (hfinal) clash-prelude;
+      #   };
 
       clash-cosim =
         let
@@ -131,7 +150,7 @@ let
               "clash-ghc"
               ../clash-ghc
               "--flag workaround-ghc-mmap-crash" {
-              inherit (hfinal) clash-lib clash-prelude clash-protocols;
+              inherit (hfinal) clash-cores clash-lib clash-prelude clash-protocols;
             };
         in
         prev.haskell.lib.enableSharedExecutables

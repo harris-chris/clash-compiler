@@ -168,6 +168,7 @@ library
                       transformers              >= 0.5.2.0  && < 0.7,
                       unordered-containers      >= 0.2.1.0  && < 0.3,
 
+                      clash-cores,
                       clash-lib                 == 1.8.1,
                       clash-prelude             == 1.8.1,
                       clash-protocols,
