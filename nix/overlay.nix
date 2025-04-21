@@ -68,9 +68,7 @@ let
           configureFlags = [
             "-f-doctests"
             "-fnix"
-            # "--ghc-option=-fplugin GHC.TypeLits.Extra.Solver"
-            # "--ghc-option=-fplugin GHC.TypeLits.Normalise"
-            # "--ghc-option=-fplugin GHC.TypeLits.KnownNat.Solver"
+            "-fclash-18"
           ];          
         });
 
